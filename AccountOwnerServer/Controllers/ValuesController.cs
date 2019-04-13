@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Contracts;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AccountOwnerServer.Controllers
@@ -10,10 +11,26 @@ namespace AccountOwnerServer.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
+        private ILoggerManager _logger;
+        private IRepositoryWrapper _repoWrapper;
+
+        public ValuesController(ILoggerManager _logger, IRepositoryWrapper repositoryWrapper)
+        {
+            _logger.LogInfo("Here is info message from our values controller.");
+            _logger.LogDebug("Here is debug message from our values controller.");
+            _logger.LogWarn("Here is warn message from our values controller.");
+            _logger.LogError("Here is error message from our values controller.");
+
+            this._repoWrapper = repositoryWrapper;
+            this._logger = _logger;
+        }
         // GET api/values
         [HttpGet]
         public ActionResult<IEnumerable<string>> Get()
         {
+            var domesticAccounts = _repoWrapper.AccountRepository.FindByConditionAsync(x => x.AccountType.Equals("Domestic"));
+            var owners = _repoWrapper.OwnerRepository.FindAllAsync();
+
             return new string[] { "value1", "value2" };
         }
 
